@@ -11,7 +11,7 @@ export default function ApplicationList({ applications, onCardClick }: Applicati
     return (
       <div className="text-center py-12">
         <p className="text-gray-500 text-lg">Belum ada lamaran</p>
-        <p className="text-gray-400 text-sm mt-2">Klik tombol "Tambah Lamaran" untuk memulai</p>
+        <p className="text-gray-400 text-sm mt-2">Klik tombol &quot;Tambah Lamaran&quot; untuk memulai</p>
       </div>
     );
   }

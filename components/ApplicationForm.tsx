@@ -1,7 +1,7 @@
 'use client';
 
 import { Application, ApplicationStatus } from '@/lib/types';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface ApplicationFormProps {
   application?: Application;

@@ -7,6 +7,7 @@ export type ApplicationStatus =
 
 export interface Application {
   id: string;
+  user_id: string;
   company: string;
   role: string;
   platform?: string;

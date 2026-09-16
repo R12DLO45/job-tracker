@@ -1,32 +1,29 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase';
 import { Application, ApplicationStatus } from '@/lib/types';
 import ApplicationList from '@/components/ApplicationList';
 import ApplicationForm from '@/components/ApplicationForm';
 import FilterTabs from '@/components/FilterTabs';
+import { User } from '@supabase/supabase-js';
 
 export default function Home() {
   const [applications, setApplications] = useState<Application[]>([]);
-  const [filteredApplications, setFilteredApplications] = useState<Application[]>([]);
   const [activeFilter, setActiveFilter] = useState<ApplicationStatus | 'All'>('All');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<Application | undefined>();
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
+  const supabase = createClient();
 
-  useEffect(() => {
-    fetchApplications();
-  }, []);
+  const filteredApplications = activeFilter === 'All' 
+    ? applications 
+    : applications.filter(app => app.status === activeFilter);
 
-  useEffect(() => {
-    if (activeFilter === 'All') {
-      setFilteredApplications(applications);
-    } else {
-      setFilteredApplications(applications.filter(app => app.status === activeFilter));
-    }
-  }, [activeFilter, applications]);
-
-  const fetchApplications = async () => {
+  const fetchApplications = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await fetch('/api/applications');
@@ -38,7 +35,20 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+      setUser(user);
+      fetchApplications();
+    };
+    checkAuth();
+  }, [router, supabase.auth, fetchApplications]);
 
   const handleSave = async (data: Partial<Application>) => {
     try {
@@ -97,6 +107,19 @@ export default function Home() {
     setIsFormOpen(true);
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
@@ -105,12 +128,20 @@ export default function Home() {
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Job Application Tracker</h1>
             <p className="text-sm sm:text-base text-gray-600 mt-1">Track semua lamaran kerja kamu</p>
           </div>
-          <button
-            onClick={handleAddNew}
-            className="bg-blue-600 text-white px-4 sm:px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base w-full sm:w-auto whitespace-nowrap"
-          >
-            + Tambah Lamaran
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleLogout}
+              className="bg-gray-200 text-gray-700 px-4 sm:px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium text-sm sm:text-base"
+            >
+              Logout
+            </button>
+            <button
+              onClick={handleAddNew}
+              className="bg-blue-600 text-white px-4 sm:px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base w-full sm:w-auto whitespace-nowrap"
+            >
+              + Tambah Lamaran
+            </button>
+          </div>
         </div>
 
         <div className="mb-4 sm:mb-6">

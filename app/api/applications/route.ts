@@ -1,14 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
-import { Application } from '@/lib/types';
+import { createServerSupabaseClient } from '@/lib/supabase-server';
 
 export async function GET(request: NextRequest) {
+  const supabase = await createServerSupabaseClient();
+  
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const searchParams = request.nextUrl.searchParams;
   const status = searchParams.get('status');
 
   let query = supabase
     .from('applications')
     .select('*')
+    .eq('user_id', user.id)
     .order('applied_date', { ascending: false });
 
   if (status) {
@@ -25,6 +32,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const supabase = await createServerSupabaseClient();
+  
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const body = await request.json();
   const { company, role, platform, notes } = body;
 
@@ -39,6 +53,7 @@ export async function POST(request: NextRequest) {
     .from('applications')
     .insert([
       {
+        user_id: user.id,
         company,
         role,
         platform: platform || null,
@@ -57,6 +72,13 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const supabase = await createServerSupabaseClient();
+  
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const body = await request.json();
   const { id, ...updates } = body;
 
@@ -68,6 +90,7 @@ export async function PATCH(request: NextRequest) {
     .from('applications')
     .update({ ...updates, updated_at: new Date().toISOString() })
     .eq('id', id)
+    .eq('user_id', user.id)
     .select()
     .single();
 
@@ -79,6 +102,13 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const supabase = await createServerSupabaseClient();
+  
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const body = await request.json();
   const { id } = body;
 
@@ -89,7 +119,8 @@ export async function DELETE(request: NextRequest) {
   const { error } = await supabase
     .from('applications')
     .delete()
-    .eq('id', id);
+    .eq('id', id)
+    .eq('user_id', user.id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
