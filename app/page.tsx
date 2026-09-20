@@ -114,43 +114,86 @@ export default function Home() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-2 border-[var(--soft-gold)] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[var(--text-secondary)] text-sm tracking-wide">Loading...</p>
+        </div>
       </div>
     );
   }
 
+  const statusCounts = {
+    All: applications.length,
+    Applied: applications.filter(a => a.status === 'Applied').length,
+    Screening: applications.filter(a => a.status === 'Screening').length,
+    Interview: applications.filter(a => a.status === 'Interview').length,
+    Offering: applications.filter(a => a.status === 'Offering').length,
+    Rejected: applications.filter(a => a.status === 'Rejected').length,
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
-          <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Job Application Tracker</h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-1">Track semua lamaran kerja kamu</p>
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={handleLogout}
-              className="bg-gray-200 text-gray-700 px-4 sm:px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium text-sm sm:text-base"
-            >
-              Logout
-            </button>
-            <button
-              onClick={handleAddNew}
-              className="bg-blue-600 text-white px-4 sm:px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base w-full sm:w-auto whitespace-nowrap"
-            >
-              + Tambah Lamaran
-            </button>
+    <div className="min-h-screen">
+      {/* Premium Header */}
+      <header className="glass-effect border-b border-[var(--soft-gold)]/10 sticky top-0 z-40 luxury-shadow">
+        <div className="max-w-[1400px] mx-auto px-6 sm:px-8 lg:px-12 py-6 lg:py-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-1.5 h-8 gold-gradient rounded-full"></div>
+                <h1 className="text-2xl lg:text-3xl xl:text-4xl font-semibold tracking-tight text-[var(--midnight-navy)]">
+                  Career Tracker
+                </h1>
+              </div>
+              <p className="text-sm lg:text-base text-[var(--text-secondary)] tracking-wide ml-5 font-light">
+                Kelola perjalanan karir profesional Anda
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-3 lg:gap-4">
+              <button
+                onClick={handleLogout}
+                className="px-5 lg:px-6 py-2.5 lg:py-3 text-sm font-medium text-[var(--text-secondary)] bg-white/60 hover:bg-white/80 rounded-xl border border-[var(--charcoal)]/10 transition-all duration-300 hover:luxury-shadow tracking-wide"
+              >
+                Logout
+              </button>
+              <button
+                onClick={handleAddNew}
+                className="gold-gradient px-6 lg:px-8 py-2.5 lg:py-3 text-sm font-medium text-white rounded-xl luxury-shadow hover:luxury-shadow-hover transition-all duration-300 tracking-wide whitespace-nowrap hover:scale-[1.02] active:scale-[0.98]"
+              >
+                + Tambah Baru
+              </button>
+            </div>
           </div>
         </div>
+      </header>
 
-        <div className="mb-4 sm:mb-6">
-          <FilterTabs activeFilter={activeFilter} onFilterChange={setActiveFilter} />
+      {/* Main Content */}
+      <main className="max-w-[1400px] mx-auto px-6 sm:px-8 lg:px-12 py-8 lg:py-12">
+        {/* Stats Overview */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-6 mb-8 lg:mb-12">
+          {(Object.entries(statusCounts) as [keyof typeof statusCounts, number][]).map(([key, count]) => (
+            <div 
+              key={key}
+              className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 lg:p-6 border border-[var(--soft-gold)]/10 luxury-shadow hover:luxury-shadow-hover transition-all duration-300 group cursor-pointer"
+              onClick={() => setActiveFilter(key as ApplicationStatus | 'All')}
+            >
+              <p className="text-xs lg:text-sm text-[var(--text-muted)] uppercase tracking-wider mb-2 font-medium">{key}</p>
+              <p className="text-2xl lg:text-3xl font-semibold text-[var(--midnight-navy)] group-hover:text-[var(--soft-gold)] transition-colors">{count}</p>
+            </div>
+          ))}
         </div>
 
+        {/* Filter Tabs */}
+        <div className="mb-8 lg:mb-10">
+          <FilterTabs activeFilter={activeFilter} onFilterChange={setActiveFilter} applications={applications} />
+        </div>
+
+        {/* Applications List */}
         {isLoading ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500">Loading...</p>
+          <div className="flex flex-col items-center justify-center py-24">
+            <div className="w-12 h-12 border-2 border-[var(--soft-gold)] border-t-transparent rounded-full animate-spin mb-6"></div>
+            <p className="text-[var(--text-secondary)] text-sm tracking-wide">Memuat data...</p>
           </div>
         ) : (
           <ApplicationList
@@ -170,7 +213,7 @@ export default function Home() {
             onDelete={selectedApplication ? handleDelete : undefined}
           />
         )}
-      </div>
+      </main>
     </div>
   );
 }

@@ -1,28 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --midnight-navy: #0f172a;
+  --navy-800: #1e293b;
+  --navy-700: #334155;
+  --charcoal: #475569;
+  --ivory: #fafaf9;
+  --cream: #f8f8f7;
+  --soft-gold: #d4af37;
+  --gold-muted: #b8993d;
+  --accent-rose: #e8d4c8;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(135deg, #fafaf9 0%, #f1f1f0 100%);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  font-feature-settings: "kern" 1, "liga" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
 }
 
 @layer utilities {
@@ -32,5 +37,35 @@ body {
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+  
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  .luxury-shadow {
+    box-shadow: 0 4px 24px -2px rgba(15, 23, 42, 0.08), 0 2px 8px -2px rgba(15, 23, 42, 0.04);
+  }
+  
+  .luxury-shadow-lg {
+    box-shadow: 0 12px 48px -4px rgba(15, 23, 42, 0.12), 0 4px 16px -4px rgba(15, 23, 42, 0.08);
+  }
+  
+  .luxury-shadow-hover {
+    box-shadow: 0 8px 32px -2px rgba(15, 23, 42, 0.1), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+  }
+  
+  .gold-gradient {
+    background: linear-gradient(135deg, #d4af37 0%, #b8993d 100%);
+  }
+  
+  .navy-gradient {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  }
+  
+  .premium-border {
+    border: 1px solid rgba(212, 175, 55, 0.2);
   }
 }
